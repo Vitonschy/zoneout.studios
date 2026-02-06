@@ -3,165 +3,585 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZONEOUT Experience</title>
+    <title>ZONEOUT STUDIOS</title>
     <style>
-        /* Reset e Stile Base */
+        /* --- CONFIGURAZIONE --- */
+        :root {
+            --ease-swiss: cubic-bezier(0.16, 1, 0.3, 1); 
+            --ease-drop: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+            --bg-color: #ffffff;
+            --text-color: #000000;
+        }
+
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
             width: 100%;
-            background-color: #f0f0f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             overflow: hidden; 
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.5s ease, color 0.5s ease;
         }
 
-        /* Il blocco nero */
-        .black-block {
-            background-color: black;
-            width: auto;
-            height: auto;
-            padding: 60px 100px;
+        body.inverted {
+            background-color: #050505; 
+            color: #ffffff;
+        }
+
+        /* --- ANIMAZIONI --- */
+        @keyframes video-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(3); } 
+            100% { transform: scale(0.8); } 
+        }
+
+        @keyframes arrow-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(5px); }
+        }
+
+        /* EFFETTO FASCIO DI LUCE (Laser Path) */
+        @keyframes draw-stroke {
+            0% {
+                stroke-dashoffset: 1000; /* Parte nascosto */
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% {
+                stroke-dashoffset: 0; /* Arriva alla fine */
+                opacity: 0;
+            }
+        }
+
+        /* --- LAYOUT GENERALE --- */
+        #final-content {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            
-            /* Transizione fluida per l'espansione (1 secondo) */
-            transition: all 1s cubic-bezier(0.77, 0, 0.175, 1); 
-            
-            position: relative;
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
             z-index: 10;
+            opacity: 0; 
+            transition: opacity 0.3s ease, transform 1s var(--ease-swiss), left 1s var(--ease-swiss), width 1s var(--ease-swiss), padding 1s var(--ease-swiss), justify-content 1s var(--ease-swiss);
+            will-change: transform;
         }
 
-        /* Classe per l'espansione a tutto schermo */
-        .black-block.expanded {
-            width: 100vw !important;
-            height: 100vh !important;
-            padding: 0 !important;
-            box-shadow: none;
-            cursor: default;
+        #final-content.split-mode {
+            justify-content: flex-start; 
+            align-items: flex-start; 
+            padding-left: 6vw; 
+            padding-top: 20vh; 
+            width: 50%; 
+            transform: none; 
+            cursor: pointer;
         }
 
-        /* Contenitore del testo */
-        .word-container {
-            font-size: 8rem;
-            font-weight: bold;
-            font-stretch: condensed;
-            letter-spacing: -2px;
-            text-transform: uppercase;
-            line-height: 1;
-            cursor: crosshair;
-            transition: opacity 0.5s ease;
+        #final-content.split-mode:hover .studio-wrapper-final {
+            opacity: 0.8;
+            transform: scale(0.99); 
         }
 
-        /* Nascondere il testo */
-        .word-container.fade-out {
+        #final-content.content-exit .content-wrapper {
+            transform: translateY(150vh);
             opacity: 0;
-            pointer-events: none;
+            transition: transform 0.8s var(--ease-drop), opacity 0.5s ease;
         }
 
-        /* Le lettere */
-        .letter {
-            color: black;
-            transition: color 0.1s ease-out;
-            display: inline-block;
-        }
-
-        .letter.revealed {
-            color: white;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-        }
-
-        /* Stile del Video */
-        #logo-video {
-            display: none; 
+        .content-wrapper {
+            transition: transform 0.3s ease;
             width: 100%;
-            height: 100%;
-            object-fit: contain; 
-            opacity: 0;
-            transition: opacity 1s ease-in;
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+        }
+        
+        #final-content.split-mode .content-wrapper { align-items: flex-start; }
+
+        /* TITOLI */
+        .studio-wrapper-final {
+            display: flex;
+            align-items: baseline;
+            margin-bottom: 50px;
+            transform: translateY(120%); 
+            transition: transform 0.8s var(--ease-swiss), opacity 0.3s;
+            color: inherit;
         }
 
-        #logo-video.visible {
-            opacity: 1;
+        #final-content.show-text .studio-wrapper-final { transform: translateY(0); }
+
+        .zoneout-main {
+            font-size: 13vw; 
+            font-weight: 900; 
+            text-transform: uppercase;
+            line-height: 0.8; 
+            letter-spacing: -0.07em; 
+            margin-right: 15px;
+            transition: font-size 1s var(--ease-swiss);
+        }
+
+        .studios-side {
+            font-size: 2vw;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: font-size 1s var(--ease-swiss);
+        }
+
+        #final-content.split-mode .zoneout-main { font-size: 7vw; }
+        #final-content.split-mode .studios-side { font-size: 1.2vw; }
+
+
+        /* BIO */
+        .bio-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+            gap: 10px;
+            transition: align-items 1s var(--ease-swiss);
+        }
+        #final-content.split-mode .bio-container { align-items: flex-start; }
+
+        .bio-line {
+            font-size: 1rem; font-weight: 500; text-transform: uppercase;
+            opacity: 0; transform: translateY(30px); 
+            transition: all 0.8s var(--ease-swiss); white-space: nowrap;
+        }
+        .bio-line.accent { font-weight: 700; border-bottom: 2px solid currentColor; }
+        .bio-line.visible { opacity: 1; transform: translateY(0); }
+
+        .view-works-hint {
+            margin-top: 40px; font-size: 0.8rem; letter-spacing: 0.2em;
+            text-transform: uppercase; opacity: 0; transform: translateY(20px);
+            transition: opacity 0.5s ease 1s, transform 0.5s ease 1s;
+        }
+        #final-content.split-mode .view-works-hint { opacity: 0.6; transform: translateY(0); }
+
+
+        /* --- PORTFOLIO LAYER --- */
+        #portfolio-layer {
+            position: absolute;
+            top: -100%; left: 0; width: 50%; height: 100%;
+            background-color: transparent; 
+            z-index: 15;
+            padding: 10vh 4vw;
+            box-sizing: border-box;
+            transition: top 1s var(--ease-swiss);
+            overflow-y: auto; 
+            -ms-overflow-style: none; scrollbar-width: none; 
+            will-change: top; transform: translateZ(0); 
+        }
+        #portfolio-layer::-webkit-scrollbar { display: none; }
+        #portfolio-layer.active { top: 0; }
+
+        .portfolio-header {
+            font-size: 1.5rem; font-weight: 900; letter-spacing: -0.02em;
+            margin-bottom: 40px; border-bottom: 2px solid white;
+            padding-bottom: 10px; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .close-btn { font-size: 0.8rem; cursor: pointer; text-decoration: underline; }
+        .poster-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding-bottom: 50px; }
+        .poster-item {
+            background-color: #111; aspect-ratio: 2 / 3; width: 100%;
+            border: 1px solid #333; cursor: crosshair;
+            position: relative; overflow: hidden;
+        }
+        .poster-item:hover { border-color: white; }
+        .poster-img { 
+            width: 100%; height: 100%; object-fit: cover; 
+            display: block; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .poster-img.loaded { opacity: 1; }
+
+
+        /* --- SOCIAL LAYER --- */
+        #social-layer {
+            position: absolute; top: 0; right: -50%; width: 50%; height: 100%;
+            display: flex; flex-direction: column; justify-content: space-between; 
+            padding: 8vh 8vw; box-sizing: border-box; z-index: 20;
+            transition: right 1s var(--ease-swiss);
+        }
+        #social-layer.active { right: 0; }
+        .order-wrapper { align-self: flex-end; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+        .order-label { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: white; }
+        .arrow-down { width: 20px; height: 20px; fill: none; stroke: white; stroke-width: 2; animation: arrow-bounce 2s infinite ease-in-out; }
+        .contact-grid { display: flex; flex-direction: column; gap: 5px; align-self: flex-end; text-align: right; }
+        .contact-item { font-size: 1.2rem; font-weight: 400; color: white; text-decoration: none; opacity: 0.8; transition: opacity 0.3s; }
+        .contact-item:hover { opacity: 1; }
+
+        /* JELLY INSTAGRAM WRAPPER */
+        .insta-wrapper { 
+            flex-grow: 1; display: flex; justify-content: center; align-items: center; width: 100%; 
+            perspective: 1000px; /* Necessario per l'effetto 3D se volessimo */
+        }
+        
+        .insta-link { 
+            display: block; 
+            width: 70%; 
+            max-width: 400px; 
+            cursor: pointer; 
+            /* Rimuoviamo la transition CSS standard perché useremo la fisica JS per il movimento */
+            will-change: transform;
+            /* Importante: l'ancoraggio deve essere al centro per lo scaling corretto */
+            transform-origin: center center;
+        }
+        
+        .insta-svg { 
+            width: 100%; 
+            height: auto; 
+            fill: white; 
+            display: block; /* Rimuove spazi indesiderati */
+            pointer-events: none; /* Il mouse interagisce con il link contenitore */
+        }
+
+
+        /* --- INTRO --- */
+        .curtain-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 50; pointer-events: none; display: flex; 
+        }
+        .curtain-panel { width: 50%; height: 100%; background-color: black; transition: transform 0.8s var(--ease-swiss); }
+        .panel-left { transform-origin: left; border-right: 1px solid black; } 
+        .panel-right { transform-origin: right; border-left: 1px solid black; }
+        .curtain-layer.open .panel-left { transform: translateX(-100%); }
+        .curtain-layer.open .panel-right { transform: translateX(100%); }
+
+        .intro-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 100; transition: transform 0.6s var(--ease-drop);
+        }
+        .intro-layer.fall-down { transform: translateY(150vh); }
+
+        .black-block {
+            background-color: black; padding: 60px 100px;
+            display: flex; justify-content: center; align-items: center;
+            transition: width 0.6s var(--ease-swiss), height 0.6s var(--ease-swiss), padding 0.6s var(--ease-swiss); 
+            width: auto; height: auto; overflow: hidden; 
+        }
+        .black-block.full-screen { width: 100vw; height: 100vh; padding: 0; }
+
+        /* SVG TEXT CONTAINER */
+        .svg-text-container {
+            width: 800px; max-width: 90vw; height: auto;
+            cursor: crosshair; z-index: 102; transition: opacity 0.3s ease;
+        }
+        .svg-text-container.fade-out { opacity: 0; pointer-events: none; }
+
+        .svg-text {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-weight: bold; font-size: 130px; text-transform: uppercase;
+            fill: transparent; stroke: white; stroke-width: 2px;
+            stroke-dasharray: 20 1000; stroke-dashoffset: 1000; opacity: 0.4; 
+            animation: draw-stroke 3s infinite linear; 
+        }
+        
+        .svg-text.revealed { 
+            fill: white; text-shadow: 0 0 15px rgba(255, 255, 255, 0.9); 
+            -webkit-text-stroke: 0; stroke: none; opacity: 1; filter: drop-shadow(0 0 10px rgba(255,255,255,0.8));
+            animation: none; cursor: default;
+        }
+
+        #logo-video {
+            display: none; width: 100%; height: 100%; object-fit: contain; 
+            opacity: 0; z-index: 101; transition: opacity 0.3s ease;
+        }
+        #logo-video.visible { opacity: 1; }
+        #logo-video.animating {
+            animation-name: video-pulse; animation-timing-function: ease-in-out; animation-fill-mode: forwards;
         }
 
     </style>
 </head>
 <body>
 
-    <div class="black-block" id="main-block">
-        
-        <div class="word-container" id="zoneout-text">
-            <span class="letter">Z</span>
-            <span class="letter">O</span>
-            <span class="letter">N</span>
-            <span class="letter">E</span>
-            <span class="letter">O</span>
-            <span class="letter">U</span>
-            <span class="letter">T</span>
+    <div id="social-layer">
+        <div class="order-wrapper">
+            <div class="order-label">Commissions / Orders</div>
+            <svg class="arrow-down" viewBox="0 0 24 24"><path d="M12 21l-12-18h24z"/></svg>
         </div>
+        
+        <div class="insta-wrapper">
+            <a href="https://www.instagram.com/zoneout.studios/" target="_blank" class="insta-link" id="jelly-logo">
+                <svg class="insta-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                    <path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/>
+                </svg>
+            </a>
+        </div>
+        
+        <div class="contact-grid">
+            <a href="mailto:Zoneoutstudios@gmail.com" class="contact-item">Zoneoutstudios@gmail.com</a>
+            <span class="contact-item fake-number">+41 79 000 00 00</span>
+        </div>
+    </div>
 
-        <video id="logo-video" playsinline muted loop>
-            <source src="Animazione_logo_FINITA.mp4" type="video/mp4">
-            Il tuo browser non supporta il tag video.
-        </video>
+    <div id="final-content">
+        <div class="content-wrapper">
+            <div class="studio-wrapper-final">
+                <span class="zoneout-main">ZONEOUT</span>
+                <span class="studios-side">STUDIOS</span>
+            </div>
+            
+            <div class="bio-container">
+                <div class="bio-line">Visual Communication @ SUPSI / TI</div>
+                <div class="bio-line accent">DARK AESTHETICS x PUNK COUTURE</div> 
+                <div class="bio-line">Digital Design & Custom Craft</div>
+            </div>
+            <div class="view-works-hint">[ CLICK TO VIEW WORKS ]</div>
+        </div>
+    </div>
 
+    <div id="portfolio-layer">
+        <div class="portfolio-header">
+            <span>SELECTED WORKS</span>
+            <span class="close-btn" id="close-portfolio">CLOSE [X]</span>
+        </div>
+        <div class="poster-grid" id="poster-grid-container"></div>
+    </div>
+
+    <div class="curtain-layer" id="curtains">
+        <div class="curtain-panel panel-left"></div>
+        <div class="curtain-panel panel-right"></div>
+    </div>
+
+    <div class="intro-layer" id="intro-layer">
+        <div class="black-block" id="black-block">
+            <svg class="svg-text-container" id="zoneout-text" viewBox="0 0 700 150">
+                <text x="10" y="120" class="svg-text" id="L1" style="animation-delay: 0s;">Z</text>
+                <text x="100" y="120" class="svg-text" id="L2" style="animation-delay: 0.2s;">O</text>
+                <text x="200" y="120" class="svg-text" id="L3" style="animation-delay: 0.4s;">N</text>
+                <text x="300" y="120" class="svg-text" id="L4" style="animation-delay: 0.6s;">E</text>
+                <text x="390" y="120" class="svg-text" id="L5" style="animation-delay: 0.8s;">O</text>
+                <text x="490" y="120" class="svg-text" id="L6" style="animation-delay: 1.0s;">U</text>
+                <text x="590" y="120" class="svg-text" id="L7" style="animation-delay: 1.2s;">T</text>
+            </svg>
+            <video id="logo-video" playsinline muted>
+                <source src="Animazione_logo_FINITA.mp4" type="video/mp4">
+            </video>
+        </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const letters = document.querySelectorAll('.letter');
+            // ELEMENTI
+            const letters = document.querySelectorAll('.svg-text');
             const textContainer = document.getElementById('zoneout-text');
-            const mainBlock = document.getElementById('main-block');
+            const blackBlock = document.getElementById('black-block');
+            const introLayer = document.getElementById('intro-layer');
             const video = document.getElementById('logo-video');
+            const curtains = document.getElementById('curtains');
+            const finalContent = document.getElementById('final-content');
+            const bioLines = document.querySelectorAll('.bio-line');
+            const socialLayer = document.getElementById('social-layer');
+            const portfolioLayer = document.getElementById('portfolio-layer');
+            const closePortfolioBtn = document.getElementById('close-portfolio');
+            const posterGridContainer = document.getElementById('poster-grid-container');
             
+            // VARIE
             let revealedCount = 0;
             const totalLetters = letters.length;
-            let animationTriggered = false;
+            let sequenceStarted = false;
+            let dropTriggered = false;
+            let canOpenPortfolio = false; 
+            let portfolioLoaded = false;
+            const playbackSpeed = 3.0; 
 
+            // --- 1. JELLY EFFECT SCRIPT (FISICA MOLLA) ---
+            const jellyLogo = document.getElementById('jelly-logo');
+            
+            let mouseX = 0, mouseY = 0;
+            let elX = 0, elY = 0; // Posizione attuale elemento (offset relativo al centro)
+            let velX = 0, velY = 0; // Velocità
+            let isHovering = false;
+
+            // Costanti fisiche (Configurazione Gelatina)
+            const tension = 0.1;   // Forza della molla (0.1 = morbido)
+            const friction = 0.8;  // Attrito (0.8 = "jiggly" ma si ferma)
+            
+            document.addEventListener('mousemove', (e) => {
+                // Catturiamo mouse globale per calcolare la distanza
+                const rect = jellyLogo.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                // Se siamo "sopra" o "vicini" al logo (area estesa per effetto magnetico)
+                const distX = e.clientX - centerX;
+                const distY = e.clientY - centerY;
+                const distance = Math.sqrt(distX*distX + distY*distY);
+
+                // Attiviamo l'effetto se siamo entro 300px dal centro (Effetto magnetico)
+                if (distance < 300) {
+                    isHovering = true;
+                    // Il target è la posizione del mouse, ma limitata (non va all'infinito)
+                    mouseX = distX * 0.4; // Segue il mouse al 40% della distanza
+                    mouseY = distY * 0.4;
+                } else {
+                    isHovering = false;
+                    mouseX = 0;
+                    mouseY = 0;
+                }
+            });
+
+            function animateJelly() {
+                // Calcolo fisica molla
+                // Accelerazione = Distanza * Tensione
+                const ax = (mouseX - elX) * tension;
+                const ay = (mouseY - elY) * tension;
+
+                // Velocità = Velocità + Accelerazione
+                velX += ax;
+                velY += ay;
+
+                // Applica frizione
+                velX *= friction;
+                velY *= friction;
+
+                // Aggiorna posizione
+                elX += velX;
+                elY += velY;
+
+                // Calcolo dello SQUASH & STRETCH (Distorsione Gelatina)
+                // Più si muove veloce in X, più si allarga in X e schiaccia in Y
+                // Limitiamo la distorsione per non rompere tutto
+                const stretchX = 1 + (velX * 0.005); 
+                const stretchY = 1 + (velY * 0.005);
+                const scaleX = Math.min(Math.max(stretchX, 0.8), 1.2); // Clamp tra 0.8 e 1.2
+                const scaleY = Math.min(Math.max(stretchY, 0.8), 1.2);
+                
+                // Rotazione leggera basata sul movimento orizzontale
+                const rotate = velX * 0.5; 
+
+                // Applica trasformazione
+                // Translate3d per performance hardware
+                jellyLogo.style.transform = `translate3d(${elX}px, ${elY}px, 0) scale(${scaleX}, ${scaleY}) rotate(${rotate}deg)`;
+
+                requestAnimationFrame(animateJelly);
+            }
+            // Avvia loop fisico
+            animateJelly();
+
+
+            // --- 2. INTRO E LOGICA SITO ---
             letters.forEach(letter => {
                 letter.addEventListener('mouseover', function() {
-                    if (!this.classList.contains('revealed') && !animationTriggered) {
-                        
-                        this.classList.add('revealed');
+                    if (!this.classList.contains('revealed') && !sequenceStarted) {
+                        this.classList.add('revealed'); 
+                        this.classList.remove('animating'); 
                         revealedCount++;
-
                         if (revealedCount === totalLetters) {
-                            animationTriggered = true;
-                            startTransition();
+                            sequenceStarted = true;
+                            startSequence();
                         }
                     }
                 });
             });
 
-            function startTransition() {
+            function startSequence() {
                 setTimeout(() => {
-                    // 1. Svanisce il testo
                     textContainer.classList.add('fade-out');
-                    // 2. Si espande il blocco nero
-                    mainBlock.classList.add('expanded');
+                    blackBlock.classList.add('full-screen');
 
-                    // 3. Parte il video
                     setTimeout(() => {
                         textContainer.style.display = 'none';
                         video.style.display = 'block';
                         
                         requestAnimationFrame(() => {
                             video.classList.add('visible');
-                            video.play().catch(e => console.error("Autoplay bloccato:", e));
+                            video.playbackRate = playbackSpeed;
+                            
+                            const rawDuration = video.duration && !isNaN(video.duration) ? video.duration : 3;
+                            const adjustedDuration = rawDuration / playbackSpeed;
+                            
+                            video.style.animationDuration = adjustedDuration + 's';
+                            video.classList.add('animating');
+                            
+                            video.play().catch(e => console.error(e));
                         });
-
-                    }, 1000);
-
-                }, 400);
+                    }, 500); 
+                }, 100); 
             }
+
+            video.addEventListener('timeupdate', () => {
+                if (!dropTriggered && video.currentTime > (video.duration * 0.75)) {
+                    triggerDrop();
+                }
+            });
+
+            function triggerDrop() {
+                dropTriggered = true;
+                introLayer.classList.add('fall-down');
+
+                setTimeout(() => {
+                    finalContent.style.opacity = 1; 
+                    curtains.classList.add('open');
+                    
+                    setTimeout(() => {
+                        finalContent.classList.add('show-text');
+                        setTimeout(() => {
+                            invertColorsAndShowBio();
+                        }, 1000);
+                    }, 200);
+
+                    setTimeout(() => {
+                        introLayer.style.display = 'none';
+                    }, 800);
+                }, 100); 
+            }
+
+            function invertColorsAndShowBio() {
+                document.body.classList.add('inverted');
+                bioLines.forEach((line, index) => {
+                    setTimeout(() => {
+                        line.classList.add('visible');
+                        if (index === bioLines.length - 1) {
+                            setTimeout(triggerSocialEntry, 1200); 
+                        }
+                    }, 150 + (index * 150)); 
+                });
+            }
+
+            function triggerSocialEntry() {
+                finalContent.classList.add('split-mode');
+                socialLayer.classList.add('active');
+                setTimeout(() => { canOpenPortfolio = true; }, 1000);
+            }
+
+            function loadPortfolioImages() {
+                if (portfolioLoaded) return;
+                const posters = [
+                    { src: "Screenshot 2026-02-05 alle 11.57.32.jpg", alt: "Poster 1" },
+                    { src: "losers.jpg", alt: "Poster 2" },
+                    { src: "smile_poster.jpg", alt: "Poster 3" },
+                    { src: "enjoy the rain.jpg", alt: "Poster 4" },
+                    { src: "ROAM_poster.jpg", alt: "Poster 5" },
+                    { src: "Screenshot 2026-02-05 alle 11.58.42.jpg", alt: "Poster 6" }
+                ];
+                let html = '';
+                posters.forEach(p => {
+                    html += `<div class="poster-item"><img src="${p.src}" alt="${p.alt}" class="poster-img" onload="this.classList.add('loaded')"></div>`;
+                });
+                posterGridContainer.innerHTML = html;
+                portfolioLoaded = true;
+            }
+
+            finalContent.addEventListener('click', () => {
+                if (!canOpenPortfolio) return;
+                loadPortfolioImages();
+                finalContent.classList.add('content-exit');
+                setTimeout(() => { portfolioLayer.classList.add('active'); }, 200);
+            });
+
+            closePortfolioBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); 
+                portfolioLayer.classList.remove('active');
+                setTimeout(() => { finalContent.classList.remove('content-exit'); }, 500);
+            });
         });
     </script>
-
 </body>
 </html>
